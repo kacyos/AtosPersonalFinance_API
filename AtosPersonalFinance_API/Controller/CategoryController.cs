@@ -1,10 +1,12 @@
 ﻿using AtosPersonalFinance_API.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace AtosPersonalFinance_API.Controller
 {
     [ApiController]
+    [Authorize]
     [Route("[controller]")]
     public class CategoryController : ControllerBase
     {

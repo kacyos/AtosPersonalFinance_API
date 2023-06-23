@@ -2,6 +2,7 @@
 using AtosPersonalFinance_API.Models.Dtos;
 using AtosPersonalFinance_API.Models.Entities;
 using AtosPersonalFinance_API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,7 +12,15 @@ namespace AtosPersonalFinance_API.Controller
     [Route("[controller]")]
     public class UserController : ControllerBase
     {
-        [HttpPost]
+        private readonly IJWTAuthenticationManager _jWTAuthenticationManager;
+
+        public UserController(IJWTAuthenticationManager jWTAuthenticationManager)
+        {
+            this._jWTAuthenticationManager = jWTAuthenticationManager;
+        }
+
+        [AllowAnonymous]
+        [HttpPost("create")]
         public async Task<ActionResult> CreateUserAsync(
             [FromServices] Context context,
             [FromBody] CreateUserDto request
@@ -59,7 +68,12 @@ namespace AtosPersonalFinance_API.Controller
                 await context.SaveChangesAsync();
                 newUser.Password = null;
 
-                return Ok(newUser);
+                string token = _jWTAuthenticationManager.Authenticate(
+                    newUser.UserName,
+                    request.Password
+                );
+
+                return Ok(new { newUser, token });
             }
             catch (Exception ex)
             {
@@ -73,6 +87,7 @@ namespace AtosPersonalFinance_API.Controller
             }
         }
 
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<ActionResult> LoginAsync(
             [FromServices] Context context,
@@ -111,13 +126,12 @@ namespace AtosPersonalFinance_API.Controller
 
                 user.Password = null;
 
-                return Ok(
-                    new
-                    {
-                        user,
-                        //token = TokenService.GenerateToken(userExists)
-                    }
+                string token = _jWTAuthenticationManager.Authenticate(
+                    user.UserName,
+                    request.Password
                 );
+
+                return Ok(new { user, token });
             }
             catch (Exception ex)
             {

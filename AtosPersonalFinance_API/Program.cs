@@ -1,4 +1,8 @@
-using AtosPersonalFinance_API.Data;
+﻿using AtosPersonalFinance_API.Data;
+using AtosPersonalFinance_API.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using System.Text.Json.Serialization;
 
 namespace AtosPersonalFinance_API
@@ -26,7 +30,44 @@ namespace AtosPersonalFinance_API
             builder.Services.AddDbContext<Context>();
             builder.Services.AddSwaggerGen();
 
+            /***********************  JWT  **************************/
+
+            var tokenkey = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json", optional: false)
+                .Build()
+                .GetSection("TokenKey")
+                .Value;
+
+            var key = Encoding.ASCII.GetBytes(tokenkey);
+
+            builder.Services
+                .AddAuthentication(x =>
+                {
+                    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(x =>
+                {
+                    x.RequireHttpsMetadata = false; // substituir por true em produção
+                    x.SaveToken = true;
+                    x.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(key),
+                        ValidateIssuer = false,
+                        ValidateAudience = false
+                    };
+                });
+
+            builder.Services.AddSingleton<IJWTAuthenticationManager>(
+                new JWTAuthenticationManager(tokenkey)
+            );
+
+            /********************************************************/
+
             var app = builder.Build();
+
+            app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
@@ -37,6 +78,7 @@ namespace AtosPersonalFinance_API
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();

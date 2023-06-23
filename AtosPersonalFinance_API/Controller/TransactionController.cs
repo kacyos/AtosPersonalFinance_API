@@ -1,6 +1,7 @@
 ﻿using AtosPersonalFinance_API.Data;
 using AtosPersonalFinance_API.Models.Dtos;
 using AtosPersonalFinance_API.Models.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
@@ -8,10 +9,11 @@ using System.Globalization;
 namespace AtosPersonalFinance_API.Controller
 {
     [ApiController]
+    [Authorize]
     [Route("[controller]")]
     public class TransactionController : ControllerBase
     {
-        [HttpGet("list")]
+        [HttpGet("list_all")]
         public async Task<ActionResult> GetTransactions([FromServices] Context context)
         {
             try
@@ -26,7 +28,7 @@ namespace AtosPersonalFinance_API.Controller
             }
         }
 
-        [HttpPost]
+        [HttpPost("create")]
         public async Task<ActionResult> CreateTransactionAsync(
             [FromBody] TransactionDTO request,
             [FromServices] Context context
@@ -81,7 +83,7 @@ namespace AtosPersonalFinance_API.Controller
             }
         }
 
-        [HttpGet]
+        [HttpGet("last-seven-days")]
         public async Task<ActionResult> GetLastTransactionsFromSevenDays(
             [FromServices] Context context,
             [FromQuery] int user_id
@@ -101,10 +103,9 @@ namespace AtosPersonalFinance_API.Controller
             }
         }
 
-        [HttpGet("GroupByDate")]
-        public async Task<ActionResult> GetTransactionsGroupByDate(
+        [HttpGet("group-by-date")]
+        public async Task<ActionResult> GetGroupedTransactionsByDate(
             [FromServices] Context context,
-            int days,
             [FromQuery] int user_id,
             int number_of_days
         )
