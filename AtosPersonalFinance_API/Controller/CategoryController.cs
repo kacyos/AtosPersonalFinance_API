@@ -1,30 +1,31 @@
 ﻿using AtosPersonalFinance_API.Data;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace AtosPersonalFinance_API.Controller
 {
     [ApiController]
-    [Authorize]
+    //[Authorize]
     [Route("[controller]")]
     public class CategoryController : ControllerBase
     {
-        [HttpGet]
+        [HttpGet("list-all")]
         public async Task<ActionResult> GetCategoriesAsync(
             [FromServices] Context context,
-            [FromQuery] int userId
+            [FromQuery] int user_id
         )
         {
             try
             {
                 var categories = await context.Categories.AsNoTracking().ToListAsync();
 
-                return Ok();
+                return Ok(categories);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest(new { message = "Não foi possível listar as categorias." });
+                return BadRequest(
+                    new { message = "Não foi possível listar as categorias.", error = ex.Message }
+                );
             }
         }
     }

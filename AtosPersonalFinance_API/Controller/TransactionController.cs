@@ -13,12 +13,20 @@ namespace AtosPersonalFinance_API.Controller
     [Route("[controller]")]
     public class TransactionController : ControllerBase
     {
-        [HttpGet("list_all")]
-        public async Task<ActionResult> GetTransactions([FromServices] Context context)
+        [HttpGet("list-all")]
+        public async Task<ActionResult> GetTransactions(
+            [FromServices] Context context,
+            [FromQuery] int user_id
+        )
         {
             try
             {
-                var transactions = await context.Transactions.ToListAsync();
+                var transactions = await context.Transactions
+                    .Where(x => x.UserId == user_id)
+                    .OrderByDescending(x => x.Date)
+                    .Include(x => x.Category)
+                    .AsNoTracking()
+                    .ToListAsync();
 
                 return Ok(transactions);
             }
@@ -30,8 +38,9 @@ namespace AtosPersonalFinance_API.Controller
 
         [HttpPost("create")]
         public async Task<ActionResult> CreateTransactionAsync(
-            [FromBody] TransactionDTO request,
-            [FromServices] Context context
+            [FromServices] Context context,
+            [FromBody] CreateTransactionDTO request,
+            [FromQuery] int user_id
         )
         {
             if (!ModelState.IsValid)
@@ -62,14 +71,22 @@ namespace AtosPersonalFinance_API.Controller
                     return BadRequest("Inavlid date, correct format dd/MM/yyyy");
                 }
 
+                var category = context.Categories.FirstOrDefault(x => x.Id == request.Category_Id);
+
+                if (category == null)
+                {
+                    return BadRequest("Category invalid.");
+                }
+
                 var newTransaction = new Transaction
                 {
                     Description = request.Description,
                     Type = request.Type,
                     Value = request.Value,
                     Date = parsedDate,
-                    UserId = request.User_Id,
-                    CategoryId = request.Category_Id
+                    UserId = user_id,
+                    CategoryId = request.Category_Id,
+                    Category = category
                 };
 
                 await context.Transactions.AddAsync(newTransaction);

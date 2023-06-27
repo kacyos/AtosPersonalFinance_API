@@ -17,7 +17,7 @@ namespace AtosPersonalFinance_API.Data
                 .Build()
                 .GetConnectionString("DEV");
 
-            optionsBuilder.UseLazyLoadingProxies();
+            // optionsBuilder.UseLazyLoadingProxies();
             optionsBuilder.UseSqlServer(connectionString);
         }
 

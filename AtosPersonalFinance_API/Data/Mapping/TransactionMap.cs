@@ -44,6 +44,18 @@ namespace AtosPersonalFinance_API.Data.Mapping
                 .HasDefaultValueSql("GETDATE()");
 
             builder
+                .Property(x => x.CreatedAt)
+                .HasColumnName("created_AT")
+                .HasColumnType("SMALLDATETIME")
+                .HasDefaultValueSql("GETDATE()");
+
+            builder
+                .Property(x => x.UpdatedAt)
+                .HasColumnName("updated_AT")
+                .HasColumnType("SMALLDATETIME")
+                .HasDefaultValueSql("GETDATE()");
+
+            builder
                 .HasOne(x => x.User)
                 .WithMany(x => x.Transactions)
                 .HasConstraintName("fk_transaction_user")

@@ -21,4 +21,21 @@ namespace AtosPersonalFinance_API.Models.Dtos
         [Required(AllowEmptyStrings = false)]
         public int Category_Id { get; set; }
     }
+
+    public class CreateTransactionDTO
+    {
+        [Required(AllowEmptyStrings = false)]
+        public string Type { get; set; }
+
+        public string? Description { get; set; }
+
+        [Required(AllowEmptyStrings = false)]
+        public decimal Value { get; set; }
+
+        [Required(AllowEmptyStrings = false)]
+        public string Date { get; set; }
+
+        [Required(AllowEmptyStrings = false)]
+        public int Category_Id { get; set; }
+    }
 }
