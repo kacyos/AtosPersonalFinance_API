@@ -49,7 +49,7 @@ namespace AtosPersonalFinance_API.Controller
             }
             try
             {
-                if (request.Type != "revenue" && request.Type != "expense")
+                if (request.Type != "revenue" && request.Type != "Expense")
                 {
                     return BadRequest("Invalid type, must be income or expense");
                 }
