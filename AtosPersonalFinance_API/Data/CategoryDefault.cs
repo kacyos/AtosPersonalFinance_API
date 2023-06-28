@@ -58,7 +58,7 @@ namespace AtosPersonalFinance_API.Data
                         {
                             Id = (revenueCategories.Count + (i + 1)),
                             Name = expenseCategories[i],
-                            Type = "Expense",
+                            Type = "expense",
                         }
                     );
                 }
