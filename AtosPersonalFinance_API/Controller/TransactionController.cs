@@ -23,7 +23,7 @@ namespace AtosPersonalFinance_API.Controller
             {
                 var transactions = await context.Transactions
                     .Where(x => x.UserId == user_id)
-                    .OrderByDescending(x => x.Date)
+                    .OrderByDescending(x => x.UpdatedAt)
                     .Include(x => x.Category)
                     .AsNoTracking()
                     .ToListAsync();
