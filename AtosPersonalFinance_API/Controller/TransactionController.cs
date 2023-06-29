@@ -188,12 +188,17 @@ namespace AtosPersonalFinance_API.Controller
                     return BadRequest("Transaction not found.");
                 }
 
+                var category = await context.Categories.FirstAsync(
+                    x => x.Id == request.Category_Id
+                );
+
                 transaction.Type = request.Type;
                 transaction.CategoryId = request.Category_Id;
                 transaction.Value = request.Value;
                 transaction.Date = parsedDate;
                 transaction.Description = request.Description;
                 transaction.UpdatedAt = DateTime.Now;
+                transaction.Category = category;
 
                 context.Transactions.Update(transaction);
                 await context.SaveChangesAsync();
