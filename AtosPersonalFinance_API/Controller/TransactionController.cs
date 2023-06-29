@@ -4,6 +4,7 @@ using AtosPersonalFinance_API.Models.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.Globalization;
 
 namespace AtosPersonalFinance_API.Controller
@@ -144,6 +145,67 @@ namespace AtosPersonalFinance_API.Controller
             }
         }
 
+        [HttpPatch("update")]
+        public async Task<ActionResult> PatchEditTransaction(
+            [FromServices] Context context,
+            [FromQuery] int transaction_id,
+            [FromBody] UpdateTransactionDTO request
+        )
+        {
+            if (request.Type != "revenue" && request.Type != "expense")
+            {
+                return BadRequest("Invalid type, must be income or expense");
+            }
+
+            if (request.ToString().IsNullOrEmpty())
+            {
+                return null;
+            }
+
+            try
+            {
+                DateTime parsedDate;
+
+                if (
+                    !DateTime.TryParseExact(
+                        request.Date,
+                        "dd/MM/yyyy",
+                        CultureInfo.InvariantCulture,
+                        DateTimeStyles.None,
+                        out parsedDate
+                    )
+                )
+                {
+                    return BadRequest("Inavlid date, correct format dd/MM/yyyy");
+                }
+
+                var transaction = await context.Transactions.FirstOrDefaultAsync(
+                    x => x.Id == transaction_id
+                );
+
+                if (transaction == null)
+                {
+                    return BadRequest("Transaction not found.");
+                }
+
+                transaction.Type = request.Type;
+                transaction.CategoryId = request.Category_Id;
+                transaction.Value = request.Value;
+                transaction.Date = parsedDate;
+                transaction.Description = request.Description;
+                transaction.UpdatedAt = DateTime.Now;
+
+                context.Transactions.Update(transaction);
+                await context.SaveChangesAsync();
+                return Ok(transaction);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(
+                    new { message = "Falha ao editar transação.", error = ex.Message }
+                );
+            }
+        }
         /*
         [HttpGet("byCategory")]
         public async Task<ActionResult> GetTransactionByCategory(
