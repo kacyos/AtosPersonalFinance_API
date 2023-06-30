@@ -211,6 +211,36 @@ namespace AtosPersonalFinance_API.Controller
                 );
             }
         }
+
+        [HttpDelete("delete")]
+        public async Task<ActionResult> DeleteTransaction(
+            [FromServices] Context context,
+            [FromQuery] int transaction_id
+        )
+        {
+            try
+            {
+                var transaction = await context.Transactions.FirstOrDefaultAsync(
+                    x => x.Id == transaction_id
+                );
+
+                if (transaction == null)
+                {
+                    return BadRequest("Transaction not found.");
+                }
+
+                context.Transactions.Remove(transaction);
+                await context.SaveChangesAsync();
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(
+                    new { message = "Falha ao deletar transação.", error = ex.Message }
+                );
+            }
+        }
+
         /*
         [HttpGet("byCategory")]
         public async Task<ActionResult> GetTransactionByCategory(
