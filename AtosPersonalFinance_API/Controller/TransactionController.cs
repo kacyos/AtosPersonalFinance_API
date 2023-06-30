@@ -241,6 +241,47 @@ namespace AtosPersonalFinance_API.Controller
             }
         }
 
+        [HttpGet("list-by")]
+        public async Task<ActionResult> GetListBy(
+            [FromServices] Context context,
+            [FromQuery] int user_id,
+            [FromQuery] string? transaction_type,
+            [FromQuery] int? category_id,
+            [FromQuery] string? initial_date,
+            [FromQuery] string? final_date
+        )
+        {
+            var query = context.Transactions.AsQueryable();
+
+            query = query.Where(t => t.UserId == user_id).Include(x => x.Category);
+
+            if (category_id != null)
+            {
+                query = query.Where(t => t.CategoryId == category_id);
+            }
+
+            if (!string.IsNullOrEmpty(transaction_type))
+            {
+                query = query.Where(t => t.Type == transaction_type);
+            }
+
+            if (!string.IsNullOrEmpty(initial_date))
+            {
+                var parsedInitialDate = DateTime.Parse(initial_date);
+                query = query.Where(t => t.Date >= parsedInitialDate);
+            }
+
+            if (!string.IsNullOrEmpty(final_date))
+            {
+                var parsedFinalDate = DateTime.Parse(final_date);
+                query = query.Where(t => t.Date <= parsedFinalDate);
+            }
+
+            var transactions = await query.ToListAsync();
+
+            return Ok(transactions);
+        }
+
         /*
         [HttpGet("byCategory")]
         public async Task<ActionResult> GetTransactionByCategory(
