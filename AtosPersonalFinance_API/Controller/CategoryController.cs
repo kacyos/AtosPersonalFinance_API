@@ -24,7 +24,7 @@ namespace AtosPersonalFinance_API.Controller
             catch (Exception ex)
             {
                 return BadRequest(
-                    new { message = "Não foi possível listar as categorias.", error = ex.Message }
+                    new { message = "Failed to list categories.", error = ex.Message }
                 );
             }
         }

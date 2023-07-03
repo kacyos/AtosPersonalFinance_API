@@ -107,7 +107,7 @@ namespace AtosPersonalFinance_API.Controller
                     u => u.UserName == request.UserName
                 );
 
-                var message = new { message = "Usuário ou senha inválidos." };
+                var message = new { message = "Username or password is invalid." };
 
                 if (user == null)
                 {

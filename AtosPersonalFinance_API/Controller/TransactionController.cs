@@ -31,9 +31,9 @@ namespace AtosPersonalFinance_API.Controller
 
                 return Ok(transactions);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest(new { message = "Não foi possível listar as despesas." });
+                return BadRequest(new { message = "Failed to list expenses.", error = ex.Message });
             }
         }
 
@@ -52,10 +52,9 @@ namespace AtosPersonalFinance_API.Controller
             {
                 if (request.Type != "revenue" && request.Type != "expense")
                 {
-                    return BadRequest("Invalid type, must be income or expense");
+                    return BadRequest(new { message = "Invalid type, must be revenue or expense" });
                 }
 
-                //  if (!context.Categories.(request.Category_Id)) { }
 
                 DateTime parsedDate;
 
@@ -69,14 +68,14 @@ namespace AtosPersonalFinance_API.Controller
                     )
                 )
                 {
-                    return BadRequest("Inavlid date, correct format dd/MM/yyyy");
+                    return BadRequest(new { message = "Invalid date format, correct format dd/MM/yyyy" });
                 }
 
                 var category = context.Categories.FirstOrDefault(x => x.Id == request.Category_Id);
 
                 if (category == null)
                 {
-                    return BadRequest("Category invalid.");
+                    return BadRequest(new { message = "Category not found." });
                 }
 
                 var newTransaction = new Transaction
@@ -97,7 +96,7 @@ namespace AtosPersonalFinance_API.Controller
             }
             catch (Exception ex)
             {
-                return BadRequest(ex);
+                return BadRequest(new { message = "Failed to create transaction.", error = ex.Message });
             }
         }
 
@@ -115,9 +114,9 @@ namespace AtosPersonalFinance_API.Controller
 
                 return Ok(transactions);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest(new { message = "Não foi possível listar as despesas." });
+                return BadRequest(new { message = "Failed to list last seven days.  ", error = ex.Message });
             }
         }
 
@@ -139,9 +138,9 @@ namespace AtosPersonalFinance_API.Controller
 
                 return Ok(transactions);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest(new { message = "Não foi possível listar as despesas." });
+                return BadRequest(new { message = "Failed to list group by date.", error = ex.Message });
             }
         }
 
@@ -154,7 +153,7 @@ namespace AtosPersonalFinance_API.Controller
         {
             if (request.Type != "revenue" && request.Type != "expense")
             {
-                return BadRequest("Invalid type, must be income or expense");
+                return BadRequest("Invalid type, must be revenue or expense");
             }
 
             if (request.ToString().IsNullOrEmpty())
@@ -207,7 +206,7 @@ namespace AtosPersonalFinance_API.Controller
             catch (Exception ex)
             {
                 return BadRequest(
-                    new { message = "Falha ao editar transação.", error = ex.Message }
+                    new { message = "Failed to edit transaction.", error = ex.Message }
                 );
             }
         }
@@ -236,7 +235,7 @@ namespace AtosPersonalFinance_API.Controller
             catch (Exception ex)
             {
                 return BadRequest(
-                    new { message = "Falha ao deletar transação.", error = ex.Message }
+                    new { message = "Failed to delete transaction.", error = ex.Message }
                 );
             }
         }
@@ -251,78 +250,48 @@ namespace AtosPersonalFinance_API.Controller
             [FromQuery] string? final_date
         )
         {
-            var query = context.Transactions.AsQueryable();
-
-            query = query.Where(t => t.UserId == user_id).Include(x => x.Category);
-
-            if (category_id != null)
+            if (string.IsNullOrEmpty(transaction_type) && category_id == null && string.IsNullOrEmpty(initial_date) && string.IsNullOrEmpty(final_date))
             {
-                query = query.Where(t => t.CategoryId == category_id);
+                return BadRequest(new { message = "You must provide at least one filter." });
             }
-
-            if (!string.IsNullOrEmpty(transaction_type))
-            {
-                query = query.Where(t => t.Type == transaction_type);
-            }
-
-            if (!string.IsNullOrEmpty(initial_date))
-            {
-                var parsedInitialDate = DateTime.Parse(initial_date);
-                query = query.Where(t => t.Date >= parsedInitialDate);
-            }
-
-            if (!string.IsNullOrEmpty(final_date))
-            {
-                var parsedFinalDate = DateTime.Parse(final_date);
-                query = query.Where(t => t.Date <= parsedFinalDate);
-            }
-
-            var transactions = await query.ToListAsync();
-
-            return Ok(transactions);
-        }
-
-        /*
-        [HttpGet("byCategory")]
-        public async Task<ActionResult> GetTransactionByCategory(
-            [FromServices] Context context,
-            [FromQuery] int userId,
-            [FromQuery] int categoryId
-        )
-        {
             try
             {
-                var transactions = await context.Transactions
-                    .Include(t => t.Category)
-                    .Where(t => t.UserId == userId && t.CategoryId == categoryId)
-                    .ToListAsync();
+                var query = context.Transactions.AsQueryable();
+
+                query = query.Where(t => t.UserId == user_id).Include(x => x.Category);
+
+                if (category_id != null)
+                {
+                    query = query.Where(t => t.CategoryId == category_id);
+                }
+
+                if (!string.IsNullOrEmpty(transaction_type))
+                {
+                    query = query.Where(t => t.Type == transaction_type);
+                }
+
+                if (!string.IsNullOrEmpty(initial_date))
+                {
+                    var parsedInitialDate = DateTime.Parse(initial_date);
+                    query = query.Where(t => t.Date >= parsedInitialDate);
+                }
+
+                if (!string.IsNullOrEmpty(final_date))
+                {
+                    var parsedFinalDate = DateTime.Parse(final_date);
+                    query = query.Where(t => t.Date <= parsedFinalDate);
+                }
+
+                var transactions = await query.ToListAsync();
 
                 return Ok(transactions);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest(new { message = "Não foi possível listar as despesas." });
+                return BadRequest(new { message = "Failed to list transactions.", error = ex.Message });
             }
+
         }
 
-        [HttpGet("{userId}/{type}")]
-        public async Task<ActionResult> GetTransactionByType(
-            [FromServices] Context context,
-            string type,
-            int userId
-        )
-        {
-            try
-            {
-                var transactions = await context.Transactions
-                    .Where(t => t.Type == type && t.UserId == userId)
-                    .ToListAsync();
-                return Ok();
-            }
-            catch (Exception)
-            {
-                return BadRequest(new { message = "Não foi possível listar as despesas." });
-            }
-        }*/
     }
 }
