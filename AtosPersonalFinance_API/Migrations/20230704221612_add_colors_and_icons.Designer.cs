@@ -4,6 +4,7 @@ using AtosPersonalFinance_API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AtosPersonalFinance_API.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20230704221612_add_colors_and_icons")]
+    partial class add_colors_and_icons
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -63,7 +66,7 @@ namespace AtosPersonalFinance_API.Migrations
                         new
                         {
                             Id = 1,
-                            Color = "#4CAF50",
+                            Color = "4CAF50",
                             Icon = "attach_money",
                             Name = "Salário",
                             Type = "revenue"
@@ -71,7 +74,7 @@ namespace AtosPersonalFinance_API.Migrations
                         new
                         {
                             Id = 2,
-                            Color = "#9C27B0",
+                            Color = "9C27B0",
                             Icon = "show_chart",
                             Name = "Rendimento de Investimentos",
                             Type = "revenue"
@@ -79,7 +82,7 @@ namespace AtosPersonalFinance_API.Migrations
                         new
                         {
                             Id = 3,
-                            Color = "#FF9800",
+                            Color = "FF9800",
                             Icon = "shopping_cart",
                             Name = "Venda de Produtos",
                             Type = "revenue"
@@ -87,7 +90,7 @@ namespace AtosPersonalFinance_API.Migrations
                         new
                         {
                             Id = 4,
-                            Color = "#2196F3",
+                            Color = "2196F3",
                             Icon = "receipt",
                             Name = "Reembolsos",
                             Type = "revenue"
@@ -95,7 +98,7 @@ namespace AtosPersonalFinance_API.Migrations
                         new
                         {
                             Id = 5,
-                            Color = "#009688",
+                            Color = "009688",
                             Icon = "home",
                             Name = "Aluguéis Recebidos",
                             Type = "revenue"
@@ -103,7 +106,7 @@ namespace AtosPersonalFinance_API.Migrations
                         new
                         {
                             Id = 6,
-                            Color = "#607D8B",
+                            Color = "607D8B",
                             Icon = "category",
                             Name = "Outros",
                             Type = "revenue"
@@ -111,7 +114,7 @@ namespace AtosPersonalFinance_API.Migrations
                         new
                         {
                             Id = 7,
-                            Color = "#F44336",
+                            Color = "F44336",
                             Icon = "restaurant",
                             Name = "Alimentação",
                             Type = "expense"
@@ -119,7 +122,7 @@ namespace AtosPersonalFinance_API.Migrations
                         new
                         {
                             Id = 8,
-                            Color = "#3F51B5",
+                            Color = "3F51B5",
                             Icon = "home",
                             Name = "Moradia (Aluguel/Financiamento)",
                             Type = "expense"
@@ -127,7 +130,7 @@ namespace AtosPersonalFinance_API.Migrations
                         new
                         {
                             Id = 9,
-                            Color = "#FFC107",
+                            Color = "FFC107",
                             Icon = "commute",
                             Name = "Transporte",
                             Type = "expense"
@@ -135,7 +138,7 @@ namespace AtosPersonalFinance_API.Migrations
                         new
                         {
                             Id = 10,
-                            Color = "#2196F3",
+                            Color = "2196F3",
                             Icon = "school",
                             Name = "Educação",
                             Type = "expense"
@@ -143,7 +146,7 @@ namespace AtosPersonalFinance_API.Migrations
                         new
                         {
                             Id = 11,
-                            Color = "#E91E63",
+                            Color = "E91E63",
                             Icon = "local_hospital",
                             Name = "Saúde",
                             Type = "expense"
@@ -151,7 +154,7 @@ namespace AtosPersonalFinance_API.Migrations
                         new
                         {
                             Id = 12,
-                            Color = "#673AB7",
+                            Color = "673AB7",
                             Icon = "sports_esports",
                             Name = "Lazer e Entretenimento",
                             Type = "expense"
@@ -159,7 +162,7 @@ namespace AtosPersonalFinance_API.Migrations
                         new
                         {
                             Id = 13,
-                            Color = "#00BCD5",
+                            Color = "00BCD5",
                             Icon = "shopping_basket",
                             Name = "Compras",
                             Type = "expense"
@@ -167,7 +170,7 @@ namespace AtosPersonalFinance_API.Migrations
                         new
                         {
                             Id = 14,
-                            Color = "#FF5722",
+                            Color = "FF5722",
                             Icon = "credit_card",
                             Name = "Dívidas e Empréstimos",
                             Type = "expense"
@@ -175,7 +178,7 @@ namespace AtosPersonalFinance_API.Migrations
                         new
                         {
                             Id = 15,
-                            Color = "#795548",
+                            Color = "795548",
                             Icon = "trending_up",
                             Name = "Investimentos",
                             Type = "expense"
@@ -183,7 +186,7 @@ namespace AtosPersonalFinance_API.Migrations
                         new
                         {
                             Id = 16,
-                            Color = "#8BC34A",
+                            Color = "8BC34A",
                             Icon = "favorite",
                             Name = "Doações e Caridade",
                             Type = "expense"
@@ -191,7 +194,7 @@ namespace AtosPersonalFinance_API.Migrations
                         new
                         {
                             Id = 17,
-                            Color = "#607D8B",
+                            Color = "607D8B",
                             Icon = "category",
                             Name = "Outros",
                             Type = "expense"

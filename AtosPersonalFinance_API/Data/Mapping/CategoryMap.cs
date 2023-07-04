@@ -32,6 +32,20 @@ namespace AtosPersonalFinance_API.Data.Mapping
                 .HasColumnName("type")
                 .HasColumnType("VARCHAR");
 
+            builder
+                .Property(x => x.Color)
+                .IsRequired()
+                .HasColumnName("color")
+                .HasMaxLength(50)
+                .HasColumnType("NVARCHAR");
+
+            builder
+                .Property(x => x.Icon)
+                .IsRequired()
+                .HasColumnName("icon")
+                .HasMaxLength(50)
+                .HasColumnType("NVARCHAR");
+
             builder.HasData(CategoryDefault.generate());
         }
     }

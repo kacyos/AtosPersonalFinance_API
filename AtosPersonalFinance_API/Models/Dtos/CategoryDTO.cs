@@ -9,5 +9,8 @@ namespace AtosPersonalFinance_API.Models.Dtos
 
         [Required(AllowEmptyStrings = false)]
         public string Type { get; set; } = null!;
+
+        public string Color { get; set; } = null!;
+        public string Icon { get; set; } = null!;
     }
 }

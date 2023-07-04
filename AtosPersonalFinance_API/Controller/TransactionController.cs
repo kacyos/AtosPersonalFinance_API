@@ -55,7 +55,6 @@ namespace AtosPersonalFinance_API.Controller
                     return BadRequest(new { message = "Invalid type, must be revenue or expense" });
                 }
 
-
                 DateTime parsedDate;
 
                 if (
@@ -68,10 +67,12 @@ namespace AtosPersonalFinance_API.Controller
                     )
                 )
                 {
-                    return BadRequest(new { message = "Invalid date format, correct format dd/MM/yyyy" });
+                    return BadRequest(
+                        new { message = "Invalid date format, correct format dd/MM/yyyy" }
+                    );
                 }
 
-                var category = context.Categories.FirstOrDefault(x => x.Id == request.Category_Id);
+                var category = context.Categories.FirstOrDefault(x => x.Id == request.CategoryId);
 
                 if (category == null)
                 {
@@ -85,8 +86,7 @@ namespace AtosPersonalFinance_API.Controller
                     Value = request.Value,
                     Date = parsedDate,
                     UserId = user_id,
-                    CategoryId = request.Category_Id,
-                    Category = category
+                    CategoryId = request.CategoryId
                 };
 
                 await context.Transactions.AddAsync(newTransaction);
@@ -96,7 +96,9 @@ namespace AtosPersonalFinance_API.Controller
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = "Failed to create transaction.", error = ex.Message });
+                return BadRequest(
+                    new { message = "Failed to create transaction.", error = request }
+                );
             }
         }
 
@@ -110,37 +112,56 @@ namespace AtosPersonalFinance_API.Controller
             {
                 var transactions = await context.Transactions
                     .Where(t => t.UserId == user_id && t.Date >= DateTime.Now.AddDays(-7))
+                    .OrderBy(t => t.Date)
                     .ToListAsync();
 
                 return Ok(transactions);
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = "Failed to list last seven days.  ", error = ex.Message });
+                return BadRequest(
+                    new { message = "Failed to list last seven days.  ", error = ex.Message }
+                );
             }
         }
 
-        [HttpGet("group-by-date")]
+        [HttpGet("group-by-category")]
         public async Task<ActionResult> GetGroupedTransactionsByDate(
             [FromServices] Context context,
             [FromQuery] int user_id,
-            int number_of_days
+            [FromQuery] string initial_date,
+            [FromQuery] string final_date
         )
         {
             try
             {
                 var transactions = await context.Transactions
                     .Where(
-                        t => t.UserId == user_id && t.Date >= DateTime.Now.AddDays(-number_of_days)
+                        t =>
+                            t.UserId == user_id
+                            && t.Date >= DateTime.Parse(initial_date)
+                            && t.Date <= DateTime.Parse(final_date)
                     )
-                    .GroupBy(t => t.Date)
+                    .GroupBy(t => t.CategoryId)
+                    .Select(
+                        g =>
+                            new
+                            {
+                                CategoryId = g.Key,
+                                type = g.FirstOrDefault().Type,
+                                CategoryName = g.FirstOrDefault().Category.Name,
+                                Total = g.Sum(t => t.Value)
+                            }
+                    )
                     .ToListAsync();
 
                 return Ok(transactions);
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = "Failed to list group by date.", error = ex.Message });
+                return BadRequest(
+                    new { message = "Failed to list group by date.", error = ex.Message }
+                );
             }
         }
 
@@ -195,7 +216,7 @@ namespace AtosPersonalFinance_API.Controller
                 transaction.CategoryId = request.Category_Id;
                 transaction.Value = request.Value;
                 transaction.Date = parsedDate;
-                transaction.Description = request.Description;
+                transaction.Description = request?.Description;
                 transaction.UpdatedAt = DateTime.Now;
                 transaction.Category = category;
 
@@ -240,6 +261,30 @@ namespace AtosPersonalFinance_API.Controller
             }
         }
 
+        [HttpGet("modified-today")]
+        public async Task<ActionResult> GetModifiedToday(
+            [FromServices] Context context,
+            [FromQuery] int user_id
+        )
+        {
+            try
+            {
+                var transactions = await context.Transactions
+                    .Where(t => t.UserId == user_id && t.UpdatedAt.Date == DateTime.Now.Date)
+                    .Include(t => t.Category)
+                    .OrderByDescending(t => t.UpdatedAt)
+                    .ToListAsync();
+
+                return Ok(transactions);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(
+                    new { message = "Failed to list modified today.", error = ex.Message }
+                );
+            }
+        }
+
         [HttpGet("list-by")]
         public async Task<ActionResult> GetListBy(
             [FromServices] Context context,
@@ -247,10 +292,17 @@ namespace AtosPersonalFinance_API.Controller
             [FromQuery] string? transaction_type,
             [FromQuery] int? category_id,
             [FromQuery] string? initial_date,
-            [FromQuery] string? final_date
+            [FromQuery] string? final_date,
+            [FromQuery] decimal? value
         )
         {
-            if (string.IsNullOrEmpty(transaction_type) && category_id == null && string.IsNullOrEmpty(initial_date) && string.IsNullOrEmpty(final_date))
+            if (
+                string.IsNullOrEmpty(transaction_type)
+                && category_id == null
+                && string.IsNullOrEmpty(initial_date)
+                && string.IsNullOrEmpty(final_date)
+                && value == null
+            )
             {
                 return BadRequest(new { message = "You must provide at least one filter." });
             }
@@ -268,6 +320,11 @@ namespace AtosPersonalFinance_API.Controller
                 if (!string.IsNullOrEmpty(transaction_type))
                 {
                     query = query.Where(t => t.Type == transaction_type);
+                }
+
+                if (value != null)
+                {
+                    query = query.Where(t => t.Value == value);
                 }
 
                 if (!string.IsNullOrEmpty(initial_date))
@@ -288,10 +345,10 @@ namespace AtosPersonalFinance_API.Controller
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = "Failed to list transactions.", error = ex.Message });
+                return BadRequest(
+                    new { message = "Failed to list transactions.", error = ex.Message }
+                );
             }
-
         }
-
     }
 }

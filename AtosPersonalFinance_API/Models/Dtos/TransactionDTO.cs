@@ -36,13 +36,13 @@ namespace AtosPersonalFinance_API.Models.Dtos
         public string Date { get; set; }
 
         [Required(AllowEmptyStrings = false)]
-        public int Category_Id { get; set; }
+        public int CategoryId { get; set; }
     }
 
     public class UpdateTransactionDTO
     {
         public string Type { get; set; }
-        public string Description { get; set; }
+        public string? Description { get; set; }
         public decimal Value { get; set; }
         public string Date { get; set; }
         public int Category_Id { get; set; }
