@@ -23,7 +23,7 @@ namespace AtosPersonalFinance_API.Controller
         [HttpPost("create")]
         public async Task<ActionResult> CreateUserAsync(
             [FromServices] Context context,
-            [FromBody] CreateUserDto request
+            [FromBody] userDTO request
         )
         {
             if (!ModelState.IsValid)
@@ -33,33 +33,20 @@ namespace AtosPersonalFinance_API.Controller
 
             try
             {
-                request.FirstName = request.FirstName.ToLower();
-                request.LastName = request.LastName.ToLower();
                 request.UserName = request.UserName.ToLower();
-                request.Email = request.Email.ToLower();
 
                 var userExists = await context.Users
                     .AsNoTracking()
-                    .FirstOrDefaultAsync(
-                        u => (u.Email == request.Email) || (u.UserName == request.UserName)
-                    );
+                    .FirstOrDefaultAsync(u => (u.UserName == request.UserName));
 
                 if (userExists?.UserName == request.UserName)
                 {
                     return BadRequest(new { message = "userName already exists." });
                 }
 
-                if (userExists?.Email == request.Email)
-                {
-                    return BadRequest(new { message = "email already exists." });
-                }
-
                 var newUser = new User
                 {
-                    FirstName = request.FirstName,
-                    LastName = request.LastName,
                     UserName = request.UserName,
-                    Email = request.Email,
                     Password = HashPassword.Encript(request.Password),
                 };
 
@@ -78,11 +65,7 @@ namespace AtosPersonalFinance_API.Controller
             catch (Exception ex)
             {
                 return BadRequest(
-                    new
-                    {
-                        message = "Failed to create user contact administrator.",
-                        error = ex.Message
-                    }
+                    new { message = "Failed to create user contact administrator.", error = ex }
                 );
             }
         }
@@ -91,7 +74,7 @@ namespace AtosPersonalFinance_API.Controller
         [HttpPost("login")]
         public async Task<ActionResult> LoginAsync(
             [FromServices] Context context,
-            [FromBody] LoginUserDto request
+            [FromBody] userDTO request
         )
         {
             if (!ModelState.IsValid)

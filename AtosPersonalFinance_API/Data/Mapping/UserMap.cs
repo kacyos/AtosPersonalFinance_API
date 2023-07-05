@@ -19,33 +19,10 @@ namespace AtosPersonalFinance_API.Data.Mapping
                 .UseIdentityColumn();
 
             builder
-                .Property(x => x.FirstName)
-                .IsRequired()
-                .HasColumnName("first_name")
-                .HasMaxLength(80)
-                .HasColumnType("VARCHAR");
-
-            builder
-                .Property(x => x.LastName)
-                .IsRequired()
-                .HasColumnName("last_name")
-                .HasMaxLength(80)
-                .HasColumnType("VARCHAR");
-
-            builder.HasIndex(x => x.UserName).IsUnique();
-
-            builder
                 .Property(x => x.UserName)
                 .IsRequired()
                 .HasColumnName("user_name")
                 .HasMaxLength(50)
-                .HasColumnType("VARCHAR");
-
-            builder
-                .Property(x => x.Email)
-                .IsRequired()
-                .HasColumnName("email")
-                .HasMaxLength(100)
                 .HasColumnType("VARCHAR");
 
             builder
